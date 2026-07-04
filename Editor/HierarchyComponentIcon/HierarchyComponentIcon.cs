@@ -203,6 +203,11 @@ namespace VMFramework.HierarchyColor
             if (!TryGetCommonMainIconContent(components, out contentComponent, out content))
             {
                 contentComponent = GetTopComponent(components);
+                if (IsHiddenMainIconComponent(contentComponent))
+                {
+                    return false;
+                }
+
                 content = GetContent(contentComponent != null ? contentComponent.GetType() : typeof(Component),
                     contentComponent);
                 if (content == null || content.image == null)
@@ -214,6 +219,11 @@ namespace VMFramework.HierarchyColor
             }
             else
             {
+                if (IsHiddenMainIconComponent(contentComponent))
+                {
+                    return false;
+                }
+
                 iconType = IsNamespaceUnityRelated(contentComponent)
                     ? settings.ContainsUnityScriptsOnly
                     : settings.ContainsNonUnityScripts;
@@ -237,6 +247,11 @@ namespace VMFramework.HierarchyColor
             }
 
             return true;
+        }
+
+        private static bool IsHiddenMainIconComponent(Component component)
+        {
+            return component == null || IsTypeIconRequiredToHide(component.GetType());
         }
 
         private static bool TryGetCommonMainIconContent(IReadOnlyList<Component> components,
