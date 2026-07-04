@@ -30,6 +30,8 @@ namespace VMFramework.HierarchyColor
                     serializedSettings.Update();
 
                     EditorGUILayout.LabelField("Color Presets", EditorStyles.boldLabel);
+                    EditorGUILayout.PropertyField(serializedSettings.FindProperty("enableHighlight"),
+                        new GUIContent("Enable Highlight"));
                     EditorGUILayout.PropertyField(serializedSettings.FindProperty("colorPresets"), true);
                     EditorGUILayout.Space();
 

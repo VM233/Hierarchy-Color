@@ -32,6 +32,9 @@ namespace VMFramework.HierarchyColor
         private List<HierarchyColorPreset> colorPresets = new();
 
         [SerializeField]
+        private bool enableHighlight = true;
+
+        [SerializeField]
         private int maxIconNum = 5;
 
         [SerializeField]
@@ -73,6 +76,15 @@ namespace VMFramework.HierarchyColor
             {
                 EnsureInitialized();
                 return colorPresets;
+            }
+        }
+
+        public bool EnableHighlight
+        {
+            get
+            {
+                EnsureInitialized();
+                return enableHighlight;
             }
         }
 

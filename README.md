@@ -6,7 +6,7 @@ and clearer main object icons.
 ## Features
 
 - Color Hierarchy rows by name prefixes with configurable text color, background color,
-  alignment, font style, and automatic upper-case display.
+  alignment, font style, automatic upper-case display, and an enable switch.
 - Show a compact component icon list on the right side of each Hierarchy row.
 - Replace the left main GameObject icon when a useful component icon is available.
 - Use the Transform icon as the main icon for GameObjects without scripts.

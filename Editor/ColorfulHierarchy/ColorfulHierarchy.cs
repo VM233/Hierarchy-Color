@@ -46,6 +46,12 @@ namespace VMFramework.HierarchyColor
 
         private static void OnHierarchyWindow(EntityId instanceID, Rect selectionRect)
         {
+            var settings = HierarchyColorSettings.instance;
+            if (!settings.EnableHighlight)
+            {
+                return;
+            }
+
             var instance = EditorUtility.EntityIdToObject(instanceID);
 
             if (instance == null)
@@ -53,7 +59,7 @@ namespace VMFramework.HierarchyColor
                 return;
             }
 
-            foreach (var preset in HierarchyColorSettings.instance.ColorPresets)
+            foreach (var preset in settings.ColorPresets)
             {
                 if (string.IsNullOrEmpty(preset.keyChar))
                 {
@@ -159,6 +165,19 @@ namespace VMFramework.HierarchyColor
             if (label == null)
             {
                 ClearNewHierarchyRow(row, null, null);
+                return;
+            }
+
+            if (!HierarchyColorSettings.instance.EnableHighlight)
+            {
+                string objectName = gameObject != null ? gameObject.name : label.text;
+                if (gameObject == null && newHierarchyRowStyleStates.TryGetValue(row, out var state))
+                {
+                    objectName = state.ObjectName;
+                }
+
+                ClearNewHierarchyRow(row, label, objectName);
+                DrawNewHierarchyComponentIcons(row, gameObject);
                 return;
             }
 
