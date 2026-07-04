@@ -66,8 +66,9 @@ namespace VMFramework.HierarchyColor
                 return;
             }
 
-            rect.width += rect.x;
-            rect.x = 0;
+            var rowRect = rect;
+            rowRect.width += rowRect.x;
+            rowRect.x = 0;
 
             var obj = (GameObject)tempObj;
             var mainIconComponent = DrawMainComponentIcon(obj, rect);
@@ -98,7 +99,8 @@ namespace VMFramework.HierarchyColor
                 if (texture)
                 {
                     GUI.DrawTexture(
-                        new Rect(rect.width - (iconSize + 1) * (iconCount + 1), rect.y + y, iconSize, iconSize),
+                        new Rect(rowRect.width - (iconSize + 1) * (iconCount + 1), rowRect.y + y, iconSize,
+                            iconSize),
                         texture);
                     iconCount++;
                 }
@@ -111,7 +113,7 @@ namespace VMFramework.HierarchyColor
                 if (texture != null)
                 {
                     GUI.DrawTexture(
-                        new Rect(rect.width - (iconSize + 1) * visibleComponentsCount, rect.y + y,
+                        new Rect(rowRect.width - (iconSize + 1) * visibleComponentsCount, rowRect.y + y,
                             iconSize, iconSize), texture);
                 }
             }
@@ -123,7 +125,7 @@ namespace VMFramework.HierarchyColor
                 };
 
                 if (GUI.Button(
-                        new Rect(rect.width - (iconSize + 2) * (MaxIconNum + 1), rect.y + y, 22, iconSize),
+                        new Rect(rowRect.width - (iconSize + 2) * (MaxIconNum + 1), rowRect.y + y, 22, iconSize),
                         "...", style))
                 {
                     if (offsetObject != obj.transform)
