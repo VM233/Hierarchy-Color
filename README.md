@@ -28,7 +28,7 @@ https://github.com/VM233/Hierarchy-Color.git
 Or add it to `Packages/manifest.json`:
 
 ```json
-"com.vm233.hierarchy-color": "https://github.com/VM233/Hierarchy-Color.git"
+"com.vm233.improved-hierarchy": "https://github.com/VM233/Hierarchy-Color.git"
 ```
 
 ## Settings
