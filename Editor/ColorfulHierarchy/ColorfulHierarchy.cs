@@ -17,6 +17,7 @@ namespace VMFramework.HierarchyColor
         private const string NEW_HIERARCHY_NAME_CLASS = "hierarchy-item__name";
         private const string NEW_HIERARCHY_LEFT_CUSTOM_SECTION_CLASS = "hierarchy-item__left-custom-section";
         private const string NEW_HIERARCHY_ICON_ROOT_CLASS = "hierarchy-color-component-icons";
+        private const string NEW_HIERARCHY_MAIN_ICON_CLASS = "hierarchy-color-main-component-icon";
 
         private static FieldInfo viewItemField;
         private static FieldInfo nodeField;
@@ -283,6 +284,38 @@ namespace VMFramework.HierarchyColor
                 return;
             }
 
+            DrawNewHierarchyMainComponentIcon(customSection, gameObject);
+            DrawNewHierarchyVisibleComponentIcons(customSection, gameObject);
+        }
+
+        private static void DrawNewHierarchyMainComponentIcon(VisualElement customSection, GameObject gameObject)
+        {
+            if (!HierarchyComponentIcon.TryGetMainIconContent(gameObject, out var content, out var iconType))
+            {
+                return;
+            }
+
+            int iconSize = iconType == HierarchyColorSettings.ScriptIconType.SmallIcon
+                ? 10
+                : HierarchyComponentIcon.IconSize;
+
+            var image = new Image
+            {
+                image = content.image,
+                tooltip = content.tooltip,
+                pickingMode = PickingMode.Ignore,
+                name = NEW_HIERARCHY_MAIN_ICON_CLASS
+            };
+            image.AddToClassList(NEW_HIERARCHY_MAIN_ICON_CLASS);
+            image.style.width = iconSize;
+            image.style.height = iconSize;
+            image.style.marginLeft = 1;
+            image.style.opacity = gameObject.activeInHierarchy ? 1f : 0.5f;
+            customSection.Add(image);
+        }
+
+        private static void DrawNewHierarchyVisibleComponentIcons(VisualElement customSection, GameObject gameObject)
+        {
             var components = HierarchyComponentIcon.GetVisibleComponents(gameObject);
             if (components.Count == 0)
             {
@@ -331,6 +364,13 @@ namespace VMFramework.HierarchyColor
             var iconRoots = new List<VisualElement>(FindAll(row,
                 element => element.ClassListContains(NEW_HIERARCHY_ICON_ROOT_CLASS)));
             foreach (var iconRoot in iconRoots)
+            {
+                iconRoot.RemoveFromHierarchy();
+            }
+
+            var mainIconRoots = new List<VisualElement>(FindAll(row,
+                element => element.ClassListContains(NEW_HIERARCHY_MAIN_ICON_CLASS)));
+            foreach (var iconRoot in mainIconRoots)
             {
                 iconRoot.RemoveFromHierarchy();
             }

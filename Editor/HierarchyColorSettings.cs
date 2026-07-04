@@ -10,6 +10,20 @@ namespace VMFramework.HierarchyColor
         FilePathAttribute.Location.ProjectFolder)]
     public sealed class HierarchyColorSettings : ScriptableSingleton<HierarchyColorSettings>
     {
+        public enum ScriptIconType
+        {
+            SmallIcon,
+            BigIcon,
+            UnityDefault
+        }
+
+        public enum UnityNativeScriptsDetectionType
+        {
+            UnityEngine,
+            Unity,
+            None
+        }
+
         private const string SETTINGS_PATH = "ProjectSettings/HierarchyColorSettings.asset";
         private const int MIN_ICON_NUM = 1;
         private const int MAX_ICON_NUM = 10;
@@ -24,6 +38,36 @@ namespace VMFramework.HierarchyColor
 
         [SerializeField]
         private int iconSize = 16;
+
+        [SerializeField]
+        private bool showMainComponentIcon = true;
+
+        [SerializeField]
+        private bool showAlwaysFirstScriptIcon = false;
+
+        [SerializeField]
+        private UnityNativeScriptsDetectionType unityScriptDetectionType = UnityNativeScriptsDetectionType.Unity;
+
+        [SerializeField]
+        private ScriptIconType containsUnityScriptsOnly = ScriptIconType.BigIcon;
+
+        [SerializeField]
+        private ScriptIconType containsNonUnityScripts = ScriptIconType.SmallIcon;
+
+        [SerializeField]
+        private ScriptIconType containsSingleUserScript = ScriptIconType.SmallIcon;
+
+        [SerializeField]
+        private ScriptIconType containsNoScripts = ScriptIconType.BigIcon;
+
+        [SerializeField]
+        private bool overridePrefabIconType = false;
+
+        [SerializeField]
+        private ScriptIconType prefabIconType = ScriptIconType.SmallIcon;
+
+        [SerializeField]
+        private bool enableHierarchyIconTooltips = true;
 
         [InitializeOnLoadMethod]
         private static void EnsureSettingsFile()
@@ -60,6 +104,96 @@ namespace VMFramework.HierarchyColor
             {
                 EnsureInitialized();
                 return iconSize;
+            }
+        }
+
+        public bool ShowMainComponentIcon
+        {
+            get
+            {
+                EnsureInitialized();
+                return showMainComponentIcon;
+            }
+        }
+
+        public bool ShowAlwaysFirstScriptIcon
+        {
+            get
+            {
+                EnsureInitialized();
+                return showAlwaysFirstScriptIcon;
+            }
+        }
+
+        public UnityNativeScriptsDetectionType UnityScriptDetectionType
+        {
+            get
+            {
+                EnsureInitialized();
+                return unityScriptDetectionType;
+            }
+        }
+
+        public ScriptIconType ContainsUnityScriptsOnly
+        {
+            get
+            {
+                EnsureInitialized();
+                return containsUnityScriptsOnly;
+            }
+        }
+
+        public ScriptIconType ContainsNonUnityScripts
+        {
+            get
+            {
+                EnsureInitialized();
+                return containsNonUnityScripts;
+            }
+        }
+
+        public ScriptIconType ContainsSingleUserScript
+        {
+            get
+            {
+                EnsureInitialized();
+                return containsSingleUserScript;
+            }
+        }
+
+        public ScriptIconType ContainsNoScripts
+        {
+            get
+            {
+                EnsureInitialized();
+                return containsNoScripts;
+            }
+        }
+
+        public bool OverridePrefabIconType
+        {
+            get
+            {
+                EnsureInitialized();
+                return overridePrefabIconType;
+            }
+        }
+
+        public ScriptIconType PrefabIconType
+        {
+            get
+            {
+                EnsureInitialized();
+                return prefabIconType;
+            }
+        }
+
+        public bool EnableHierarchyIconTooltips
+        {
+            get
+            {
+                EnsureInitialized();
+                return enableHierarchyIconTooltips;
             }
         }
 

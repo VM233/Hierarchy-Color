@@ -1,6 +1,6 @@
 # Hierarchy Color
 
-Unity editor extension for coloring Hierarchy items and showing component icons.
+Unity editor extension for coloring Hierarchy items, showing component icons, and replacing the main Hierarchy icon based on component/script rules.
 
 ## Installation
 
@@ -18,4 +18,4 @@ Or add it to `Packages/manifest.json`:
 
 ## Settings
 
-Open `Project Settings > Hierarchy Color` to configure color presets and component icon display.
+Open `Project Settings > Hierarchy Color` to configure color presets, component icon display, and Better Hierarchy-style main icon rules.
