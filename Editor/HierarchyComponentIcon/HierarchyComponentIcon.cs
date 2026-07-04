@@ -58,39 +58,52 @@ namespace VMFramework.HierarchyColor
             rect.x = 0;
 
             var obj = (GameObject)tempObj;
-            DrawMainComponentIcon(obj, rect);
+            var mainIconComponent = DrawMainComponentIcon(obj, rect);
 
             var components = GetVisibleComponents(obj);
 
             int iconSize = IconSize;
             int y = 1;
             int iconOffset = obj.transform == offsetObject ? offset : 0;
+            int iconCount = 0;
+            int visibleComponentsCount = components.Count;
+            if (mainIconComponent != null && components.Contains(mainIconComponent))
+            {
+                visibleComponentsCount--;
+            }
 
-            for (int i = 0; i + iconOffset < components.Count && i < MaxIconNum; i++)
+            for (int i = 0; i + iconOffset < components.Count && iconCount < MaxIconNum; i++)
             {
                 Component com = components[i + iconOffset];
+
+                if (com == mainIconComponent)
+                {
+                    continue;
+                }
 
                 Texture2D texture = GetComponentIcon(com);
 
                 if (texture)
                 {
                     GUI.DrawTexture(
-                        new Rect(rect.width - (iconSize + 1) * (i + 1), rect.y + y, iconSize, iconSize),
+                        new Rect(rect.width - (iconSize + 1) * (iconCount + 1), rect.y + y, iconSize, iconSize),
                         texture);
+                    iconCount++;
                 }
             }
 
-            if (components.Count == MaxIconNum + 1)
+            if (visibleComponentsCount == MaxIconNum + 1)
             {
-                Texture2D texture = GetComponentIcon(components[^1]);
-                if (texture)
+                var component = GetLastComponentExcept(components, mainIconComponent);
+                Texture2D texture = component != null ? GetComponentIcon(component) : null;
+                if (texture != null)
                 {
                     GUI.DrawTexture(
-                        new Rect(rect.width - (iconSize + 1) * (components.Count - 1 + 1), rect.y + y,
+                        new Rect(rect.width - (iconSize + 1) * visibleComponentsCount, rect.y + y,
                             iconSize, iconSize), texture);
                 }
             }
-            else if (components.Count > MaxIconNum)
+            else if (visibleComponentsCount > MaxIconNum)
             {
                 GUIStyle style = new(GUI.skin.label)
                 {
@@ -116,22 +129,43 @@ namespace VMFramework.HierarchyColor
             }
         }
 
+        private static Component GetLastComponentExcept(IReadOnlyList<Component> components, Component excludedComponent)
+        {
+            for (int i = components.Count - 1; i >= 0; i--)
+            {
+                if (components[i] != excludedComponent)
+                {
+                    return components[i];
+                }
+            }
+
+            return null;
+        }
+
         internal static bool TryGetMainIconContent(GameObject obj, out GUIContent content,
             out HierarchyColorSettings.ScriptIconType iconType)
         {
-            return TryGetMainIconContent(obj, out content, out iconType, false);
+            return TryGetMainIconContent(obj, out content, out iconType, out _, false);
         }
 
         internal static bool TryGetMainIconOverrideContent(GameObject obj, out GUIContent content,
             out HierarchyColorSettings.ScriptIconType iconType)
         {
-            return TryGetMainIconContent(obj, out content, out iconType, true);
+            return TryGetMainIconContent(obj, out content, out iconType, out _, true);
+        }
+
+        internal static bool TryGetMainIconOverrideContent(GameObject obj, out GUIContent content,
+            out HierarchyColorSettings.ScriptIconType iconType, out Component component)
+        {
+            return TryGetMainIconContent(obj, out content, out iconType, out component, true);
         }
 
         private static bool TryGetMainIconContent(GameObject obj, out GUIContent content,
-            out HierarchyColorSettings.ScriptIconType iconType, bool mainIconOverrideOnly)
+            out HierarchyColorSettings.ScriptIconType iconType, out Component contentComponent,
+            bool mainIconOverrideOnly)
         {
             content = null;
+            contentComponent = null;
             iconType = HierarchyColorSettings.ScriptIconType.UnityDefault;
 
             var settings = HierarchyColorSettings.instance;
@@ -152,7 +186,7 @@ namespace VMFramework.HierarchyColor
                 return false;
             }
 
-            var contentComponent = GetTopComponent(components);
+            contentComponent = GetTopComponent(components);
             content = GetContent(contentComponent != null ? contentComponent.GetType() : typeof(Component),
                 contentComponent);
             if (content == null || content.image == null)
@@ -202,11 +236,11 @@ namespace VMFramework.HierarchyColor
             return components;
         }
 
-        private static void DrawMainComponentIcon(GameObject obj, Rect selectionRect)
+        private static Component DrawMainComponentIcon(GameObject obj, Rect selectionRect)
         {
-            if (!TryGetMainIconContent(obj, out var content, out var iconType))
+            if (!TryGetMainIconContent(obj, out var content, out var iconType, out var component, false))
             {
-                return;
+                return null;
             }
 
             var objectStatus = GetHierarchyObjectStatus(obj, selectionRect);
@@ -232,6 +266,8 @@ namespace VMFramework.HierarchyColor
 
             EditorGUI.LabelField(iconRect, content);
             GUI.color = originalColor;
+
+            return component;
         }
 
         private static HierarchyColorSettings.ScriptIconType GetMainIconType(IReadOnlyList<Component> components,
