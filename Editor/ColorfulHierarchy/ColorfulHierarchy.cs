@@ -170,13 +170,13 @@ namespace VMFramework.HierarchyColor
 
             if (!HierarchyColorSettings.instance.EnableHighlight)
             {
-                string objectName = gameObject != null ? gameObject.name : label.text;
+                string originalName = gameObject != null ? gameObject.name : label.text;
                 if (gameObject == null && newHierarchyRowStyleStates.TryGetValue(row, out var state))
                 {
-                    objectName = state.ObjectName;
+                    originalName = state.ObjectName;
                 }
 
-                ClearNewHierarchyRow(row, label, objectName);
+                ClearNewHierarchyRow(row, label, originalName);
                 DrawNewHierarchyComponentIcons(row, gameObject);
                 return;
             }
