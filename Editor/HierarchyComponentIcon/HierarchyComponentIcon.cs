@@ -122,14 +122,14 @@ namespace VMFramework.HierarchyColor
             return TryGetMainIconContent(obj, out content, out iconType, false);
         }
 
-        internal static bool TryGetCustomMainIconContent(GameObject obj, out GUIContent content,
+        internal static bool TryGetMainIconOverrideContent(GameObject obj, out GUIContent content,
             out HierarchyColorSettings.ScriptIconType iconType)
         {
             return TryGetMainIconContent(obj, out content, out iconType, true);
         }
 
         private static bool TryGetMainIconContent(GameObject obj, out GUIContent content,
-            out HierarchyColorSettings.ScriptIconType iconType, bool customIconOnly)
+            out HierarchyColorSettings.ScriptIconType iconType, bool mainIconOverrideOnly)
         {
             content = null;
             iconType = HierarchyColorSettings.ScriptIconType.UnityDefault;
@@ -173,7 +173,7 @@ namespace VMFramework.HierarchyColor
                 return false;
             }
 
-            if (customIconOnly && !usesPrefabOverride && !HasCustomMainIcon(contentComponent, content))
+            if (mainIconOverrideOnly && !usesPrefabOverride && !HasMainIconOverride(contentComponent, content))
             {
                 return false;
             }
@@ -299,14 +299,14 @@ namespace VMFramework.HierarchyColor
             return content;
         }
 
-        private static bool HasCustomMainIcon(Component component, GUIContent content)
+        private static bool HasMainIconOverride(Component component, GUIContent content)
         {
             if (component == null || content?.image == null)
             {
                 return false;
             }
 
-            if (IsNamespaceUnityRelated(component))
+            if (IsTypeIconRequiredToHide(component.GetType()))
             {
                 return false;
             }
