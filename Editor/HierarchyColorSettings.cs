@@ -1,13 +1,12 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
 namespace VMFramework.HierarchyColor
 {
-    [FilePath("ProjectSettings/HierarchyColorSettings.asset",
-        FilePathAttribute.Location.ProjectFolder)]
+    [FilePath("ImprovedHierarchySettings.asset",
+        FilePathAttribute.Location.PreferencesFolder)]
     public sealed class HierarchyColorSettings : ScriptableSingleton<HierarchyColorSettings>
     {
         public enum ScriptIconType
@@ -24,7 +23,6 @@ namespace VMFramework.HierarchyColor
             None
         }
 
-        private const string SETTINGS_PATH = "ProjectSettings/HierarchyColorSettings.asset";
         private const int MIN_ICON_NUM = 1;
         private const int MAX_ICON_NUM = 10;
         private const int MIN_ICON_SIZE = 1;
@@ -68,17 +66,6 @@ namespace VMFramework.HierarchyColor
 
         [SerializeField]
         private bool enableHierarchyIconTooltips = true;
-
-        [InitializeOnLoadMethod]
-        private static void EnsureSettingsFile()
-        {
-            if (File.Exists(SETTINGS_PATH))
-            {
-                return;
-            }
-
-            instance.SaveSettings();
-        }
 
         public IReadOnlyList<HierarchyColorPreset> ColorPresets
         {

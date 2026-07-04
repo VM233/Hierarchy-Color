@@ -10,7 +10,7 @@ namespace VMFramework.HierarchyColor
         [SettingsProvider]
         public static SettingsProvider CreateSettingsProvider()
         {
-            return new SettingsProvider("Project/Improved Hierarchy", SettingsScope.Project)
+            return new SettingsProvider("Preferences/Improved Hierarchy", SettingsScope.User)
             {
                 label = "Improved Hierarchy",
                 keywords = new HashSet<string>

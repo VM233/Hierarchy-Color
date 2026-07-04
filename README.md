@@ -15,7 +15,7 @@ and clearer main object icons.
 - Avoid duplicating the component already used as the left main icon in the right component
   icon list.
 - Support Unity 6 New Hierarchy UI Toolkit windows and the older IMGUI Hierarchy callback path.
-- Configure all options from Unity's Project Settings window.
+- Configure all options from Unity's Preferences window.
 
 ## Installation
 
@@ -33,5 +33,5 @@ Or add it to `Packages/manifest.json`:
 
 ## Settings
 
-Open `Project Settings > Improved Hierarchy` to configure color presets, component icon display,
+Open `Preferences > Improved Hierarchy` to configure color presets, component icon display,
 and main icon rules.
