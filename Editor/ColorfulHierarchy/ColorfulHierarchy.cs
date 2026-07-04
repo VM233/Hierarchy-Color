@@ -11,6 +11,14 @@ namespace VMFramework.HierarchyColor
     [InitializeOnLoad]
     public class ColorfulHierarchy
     {
+        private struct NewHierarchyRowStyleState
+        {
+            public string ObjectName;
+            public string DisplayName;
+            public HierarchyColorPreset Preset;
+        }
+
+        private const int NEW_HIERARCHY_REFRESH_INTERVAL_MS = 16;
         private const string NEW_HIERARCHY_WINDOW_TYPE_NAME = "Unity.Hierarchy.Editor.HierarchyWindow";
         private const string NEW_HIERARCHY_ROW_NAME = "unity-multi-column-view__row-container";
         private const string NEW_HIERARCHY_ITEM_CONTAINER_TYPE_NAME = "Unity.Hierarchy.HierarchyViewItemContainer";
@@ -26,6 +34,8 @@ namespace VMFramework.HierarchyColor
         private static FieldInfo handlerField;
         private static MethodInfo getGameObjectMethod;
         private static Type getGameObjectMethodHandlerType;
+        private static readonly HashSet<int> scheduledNewHierarchyWindowIDs = new();
+        private static readonly Dictionary<VisualElement, NewHierarchyRowStyleState> newHierarchyRowStyleStates = new();
 
         static ColorfulHierarchy()
         {
@@ -102,13 +112,39 @@ namespace VMFramework.HierarchyColor
 
         private static void ApplyToNewHierarchyWindow(EditorWindow window)
         {
-            if (window == null)
+            if (window == null || window.rootVisualElement == null)
             {
                 return;
             }
 
+            EnsureNewHierarchyWindowScheduled(window);
+            ApplyToNewHierarchyRows(window.rootVisualElement);
+        }
+
+        private static void EnsureNewHierarchyWindowScheduled(EditorWindow window)
+        {
+            int windowID = window.GetInstanceID();
+            if (!scheduledNewHierarchyWindowIDs.Add(windowID))
+            {
+                return;
+            }
+
+            window.rootVisualElement.schedule.Execute(() =>
+            {
+                if (window == null || window.rootVisualElement == null)
+                {
+                    scheduledNewHierarchyWindowIDs.Remove(windowID);
+                    return;
+                }
+
+                ApplyToNewHierarchyRows(window.rootVisualElement);
+            }).Every(NEW_HIERARCHY_REFRESH_INTERVAL_MS);
+        }
+
+        private static void ApplyToNewHierarchyRows(VisualElement root)
+        {
             var rows = new List<VisualElement>(
-                FindAll(window.rootVisualElement, element => element.name == NEW_HIERARCHY_ROW_NAME));
+                FindAll(root, element => element.name == NEW_HIERARCHY_ROW_NAME));
             foreach (var row in rows)
             {
                 ApplyToNewHierarchyRow(row);
@@ -126,16 +162,55 @@ namespace VMFramework.HierarchyColor
                 return;
             }
 
-            string objectName = gameObject != null ? gameObject.name : label.text;
-            ClearNewHierarchyRow(row, label, objectName);
+            if (gameObject == null)
+            {
+                if (!TryApplyCachedNewHierarchyRow(row, label))
+                {
+                    ClearNewHierarchyRow(row, label, label.text);
+                }
 
+                return;
+            }
+
+            string objectName = gameObject.name;
             if (!TryGetPreset(objectName, out var preset))
             {
+                ClearNewHierarchyRow(row, label, objectName);
                 DrawNewHierarchyComponentIcons(row, gameObject);
                 return;
             }
 
-            string displayName = objectName[preset.keyChar.Length..];
+            ApplyNewHierarchyPreset(row, label, objectName, preset, out var displayName);
+            newHierarchyRowStyleStates[row] = new()
+            {
+                ObjectName = objectName,
+                DisplayName = displayName,
+                Preset = preset
+            };
+
+            DrawNewHierarchyComponentIcons(row, gameObject);
+        }
+
+        private static bool TryApplyCachedNewHierarchyRow(VisualElement row, Label label)
+        {
+            if (!newHierarchyRowStyleStates.TryGetValue(row, out var state))
+            {
+                return false;
+            }
+
+            if (label.text != state.ObjectName && label.text != state.DisplayName)
+            {
+                return false;
+            }
+
+            ApplyNewHierarchyPreset(row, label, state.ObjectName, state.Preset, out _);
+            return true;
+        }
+
+        private static void ApplyNewHierarchyPreset(VisualElement row, Label label, string objectName,
+            HierarchyColorPreset preset, out string displayName)
+        {
+            displayName = objectName[preset.keyChar.Length..];
             if (preset.autoUpperLetters)
             {
                 displayName = displayName.ToUpper();
@@ -146,12 +221,11 @@ namespace VMFramework.HierarchyColor
             label.style.color = preset.textColor;
             label.style.unityFontStyleAndWeight = preset.fontStyle;
             label.style.unityTextAlign = preset.textAlignment;
-
-            DrawNewHierarchyComponentIcons(row, gameObject);
         }
 
         private static void ClearNewHierarchyRow(VisualElement row, Label label, string objectName)
         {
+            newHierarchyRowStyleStates.Remove(row);
             row.style.backgroundColor = StyleKeyword.Null;
 
             if (label != null)

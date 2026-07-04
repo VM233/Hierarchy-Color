@@ -9,7 +9,7 @@ and clearer main object icons.
   alignment, font style, and automatic upper-case display.
 - Show a compact component icon list on the right side of each Hierarchy row.
 - Replace the left main GameObject icon when a useful component icon is available.
-- Keep Unity's default GameObject icon when no useful custom or built-in component icon exists.
+- Use the Transform icon as the main icon for GameObjects without scripts.
 - Use common Unity built-in icons for main object icons, including Camera, Light, Audio,
   Canvas, Event System, Standalone Input Module, and Input System UI Input Module.
 - Avoid duplicating the component already used as the left main icon in the right component
