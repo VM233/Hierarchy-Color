@@ -22,13 +22,13 @@ and clearer main object icons.
 Add the package through Unity Package Manager with this Git URL:
 
 ```text
-https://github.com/VM233/Hierarchy-Color.git
+https://github.com/VM233/Improved-Hierarchy.git
 ```
 
 Or add it to `Packages/manifest.json`:
 
 ```json
-"com.vm233.improved-hierarchy": "https://github.com/VM233/Hierarchy-Color.git"
+"com.vm233.improved-hierarchy": "https://github.com/VM233/Improved-Hierarchy.git"
 ```
 
 ## Settings
