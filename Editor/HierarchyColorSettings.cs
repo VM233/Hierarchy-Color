@@ -23,7 +23,7 @@ namespace VMFramework.HierarchyColor
             None
         }
 
-        private const int MIN_ICON_NUM = 1;
+        private const int MIN_ICON_NUM = 0;
         private const int MAX_ICON_NUM = 10;
         private const int MIN_ICON_SIZE = 1;
         private const int MAX_ICON_SIZE = 24;

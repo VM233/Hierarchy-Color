@@ -90,6 +90,11 @@ namespace VMFramework.HierarchyColor
             var obj = (GameObject)tempObj;
             var mainIconComponent = DrawMainComponentIcon(obj, rect);
 
+            if (MaxIconNum <= 0)
+            {
+                return;
+            }
+
             var components = GetVisibleComponents(obj);
 
             int iconSize = IconSize;

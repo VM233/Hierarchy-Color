@@ -394,6 +394,10 @@ namespace VMFramework.HierarchyColor
             }
 
             var mainIconComponent = DrawNewHierarchyMainComponentIcon(row, gameObject);
+            if (HierarchyComponentIcon.MaxIconNum <= 0)
+            {
+                return;
+            }
 
             var customSection = FindFirst(row,
                 element => element.ClassListContains(NEW_HIERARCHY_LEFT_CUSTOM_SECTION_CLASS));

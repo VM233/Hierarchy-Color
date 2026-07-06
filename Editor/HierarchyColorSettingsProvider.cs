@@ -37,7 +37,7 @@ namespace VMFramework.HierarchyColor
 
                     EditorGUILayout.LabelField("Component Icons", EditorStyles.boldLabel);
                     EditorGUILayout.PropertyField(serializedSettings.FindProperty("maxIconNum"),
-                        new GUIContent("Max Icon Num"));
+                        new GUIContent("Max Icon Num", "Set to 0 to disable component icons."));
                     EditorGUILayout.PropertyField(serializedSettings.FindProperty("iconSize"),
                         new GUIContent("Icon Size"));
                     EditorGUILayout.Space();
