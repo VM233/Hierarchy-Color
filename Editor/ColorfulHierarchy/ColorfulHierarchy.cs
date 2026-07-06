@@ -22,7 +22,7 @@ namespace VMFramework.HierarchyColor
         }
 
         private const double NEW_HIERARCHY_WINDOW_SCAN_INTERVAL_SECONDS = 0.5;
-        private const int NEW_HIERARCHY_REFRESH_INTERVAL_MS = 200;
+        private const int NEW_HIERARCHY_REFRESH_INTERVAL_MS = 16;
         private const string NEW_HIERARCHY_WINDOW_TYPE_NAME = "Unity.Hierarchy.Editor.HierarchyWindow";
         private const string NEW_HIERARCHY_ROW_NAME = "unity-multi-column-view__row-container";
         private const string NEW_HIERARCHY_ITEM_CONTAINER_TYPE_NAME = "Unity.Hierarchy.HierarchyViewItemContainer";
@@ -39,6 +39,7 @@ namespace VMFramework.HierarchyColor
         private static MethodInfo getGameObjectMethod;
         private static Type getGameObjectMethodHandlerType;
         private static readonly HashSet<long> scheduledNewHierarchyWindowIDs = new();
+        private static readonly Dictionary<long, List<VisualElement>> newHierarchyWindowRows = new();
         private static readonly Dictionary<VisualElement, NewHierarchyRowStyleState> newHierarchyRowStyleStates = new();
         private static readonly GUIStyle hierarchyLabelStyle = new();
         private static double nextNewHierarchyWindowScanTime;
@@ -132,6 +133,7 @@ namespace VMFramework.HierarchyColor
 
         private static void RepaintNewHierarchyWindows()
         {
+            newHierarchyWindowRows.Clear();
             newHierarchyRowStyleStates.Clear();
 
             foreach (var window in Resources.FindObjectsOfTypeAll<EditorWindow>())
@@ -150,8 +152,10 @@ namespace VMFramework.HierarchyColor
                 return;
             }
 
+            long windowID = GetObjectID(window);
             EnsureNewHierarchyWindowScheduled(window);
-            ApplyToNewHierarchyRows(window.rootVisualElement);
+            RefreshNewHierarchyRowsCache(windowID, window.rootVisualElement);
+            ApplyToCachedNewHierarchyRows(windowID, window.rootVisualElement);
         }
 
         private static void EnsureNewHierarchyWindowScheduled(EditorWindow window)
@@ -167,10 +171,11 @@ namespace VMFramework.HierarchyColor
                 if (window == null || window.rootVisualElement == null)
                 {
                     scheduledNewHierarchyWindowIDs.Remove(windowID);
+                    newHierarchyWindowRows.Remove(windowID);
                     return;
                 }
 
-                ApplyToNewHierarchyRows(window.rootVisualElement);
+                ApplyToCachedNewHierarchyRows(windowID, window.rootVisualElement);
             }).Every(NEW_HIERARCHY_REFRESH_INTERVAL_MS);
         }
 
@@ -188,12 +193,34 @@ namespace VMFramework.HierarchyColor
 #endif
         }
 
-        private static void ApplyToNewHierarchyRows(VisualElement root)
+        private static void RefreshNewHierarchyRowsCache(long windowID, VisualElement root)
         {
-            var rows = new List<VisualElement>(
+            newHierarchyWindowRows[windowID] = new List<VisualElement>(
                 FindAll(root, element => element.name == NEW_HIERARCHY_ROW_NAME));
-            foreach (var row in rows)
+        }
+
+        private static void ApplyToCachedNewHierarchyRows(long windowID, VisualElement root)
+        {
+            if (!newHierarchyWindowRows.TryGetValue(windowID, out var rows) || rows.Count == 0)
             {
+                RefreshNewHierarchyRowsCache(windowID, root);
+                rows = newHierarchyWindowRows[windowID];
+            }
+
+            for (int i = rows.Count - 1; i >= 0; i--)
+            {
+                var row = rows[i];
+                if (row == null || row.panel == null)
+                {
+                    if (row != null)
+                    {
+                        newHierarchyRowStyleStates.Remove(row);
+                    }
+
+                    rows.RemoveAt(i);
+                    continue;
+                }
+
                 ApplyToNewHierarchyRow(row);
             }
         }
