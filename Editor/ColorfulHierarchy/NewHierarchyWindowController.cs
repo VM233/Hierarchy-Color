@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace VMFramework.HierarchyColor
     {
         private static readonly HashSet<long> scheduledWindowIDs = new();
         private static readonly Dictionary<long, List<VisualElement>> windowRows = new();
+        private static Type hierarchyWindowType;
         private static double nextWindowScanTime;
 
         public static void UpdateWhenDue()
@@ -29,9 +31,9 @@ namespace VMFramework.HierarchyColor
             windowRows.Clear();
             NewHierarchyRowRenderer.ClearCache();
 
-            foreach (var window in Resources.FindObjectsOfTypeAll<EditorWindow>())
+            foreach (var windowObject in FindHierarchyWindows())
             {
-                if (IsNewHierarchyWindow(window))
+                if (windowObject is EditorWindow window)
                 {
                     ApplyToWindow(window);
                 }
@@ -40,18 +42,34 @@ namespace VMFramework.HierarchyColor
 
         private static void ApplyToWindows()
         {
-            foreach (var window in Resources.FindObjectsOfTypeAll<EditorWindow>())
+            foreach (var windowObject in FindHierarchyWindows())
             {
-                if (IsNewHierarchyWindow(window))
+                if (windowObject is EditorWindow window)
                 {
                     ApplyToWindow(window);
                 }
             }
         }
 
-        private static bool IsNewHierarchyWindow(EditorWindow window)
+        private static UnityEngine.Object[] FindHierarchyWindows()
         {
-            return window != null && window.GetType().FullName == NewHierarchyConstants.WindowTypeName;
+            hierarchyWindowType ??= FindHierarchyWindowType();
+            return hierarchyWindowType == null
+                ? Array.Empty<UnityEngine.Object>()
+                : Resources.FindObjectsOfTypeAll(hierarchyWindowType);
+        }
+
+        private static Type FindHierarchyWindowType()
+        {
+            foreach (var type in TypeCache.GetTypesDerivedFrom<EditorWindow>())
+            {
+                if (type.FullName == NewHierarchyConstants.WindowTypeName)
+                {
+                    return type;
+                }
+            }
+
+            return null;
         }
 
         private static void ApplyToWindow(EditorWindow window)
